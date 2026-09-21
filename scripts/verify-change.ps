@@ -1,0 +1,24 @@
+$ErrorActionPreference = "Stop"
+
+Write-Host "== Frontend: lint =="
+npm run lint
+
+Write-Host "== Frontend: typecheck =="
+npm run typecheck
+
+Write-Host "== Frontend: test =="
+npm run test
+
+Write-Host "== Rust: format =="
+cargo fmt --check --manifest-path src-tauri/Cargo.toml
+
+Write-Host "== Rust: clippy =="
+cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings
+
+Write-Host "== Rust: test =="
+cargo test --manifest-path src-tauri/Cargo.toml
+
+Write-Host "== Git status =="
+git status --short
+
+Write-Host "== Verification complete =="
