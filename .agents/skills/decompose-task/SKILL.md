@@ -1,6 +1,6 @@
 ---
 name: decompose-task
-description: 承認済みの機能仕様を、Codexが安全に実装・検証・レビューできる小さな実装タスクへ分割する。実装計画、依存関係、リスク、必要なEvidenceを整理するときに使用する。
+description: 承認済みの機能仕様を、Codexが安全に実装・検証・レビューできる小さな実装タスクへ分割する。実装計画、依存関係、リスク、必要な検証を整理するときに使用する。
 ---
 
 # 目的
@@ -94,7 +94,7 @@ AI Coding Agentが安全に実行でき、
 一方、同じ論理変更を成立させるために必要な
 細かなファイル変更を過剰に分割しない。
 
-## 5. Riskを設定する
+## 5. リスクを設定する
 
 各タスクについてRiskを提案する。
 
@@ -128,63 +128,57 @@ AI Coding Agentが安全に実行でき、
 - security-sensitive behavior
 - architecture boundaryの変更
 
-Riskには必ず理由を書く。
+リスクには必ず理由を書く。
 
-RiskはAIによる提案であり、
+リスクはAIによる提案であり、
 最終判断ではない。
 
 ## 6. タスクファイルを作成する
 
 以下を作成する。
 
-`.ai/tasks/<feature-name>/`
+`.ai/features/<feature-name>/tasks/`
 
-その下に、
-
-`001-<task-name>.md`
-`002-<task-name>.md`
-`003-<task-name>.md`
-
-のようなファイルを作成する。
+その下に `001-<task-name>/`、`002-<task-name>/` のようなタスクディレクトリを作成し、各ディレクトリに `task.md` を置く。
 
 各タスクは以下の形式を使用する。
 
-# Task
+# タスク
 
-## Goal
+## 目標
 
 このタスクで達成すること。
 
-## Context
+## 背景
 
 なぜこのタスクが必要なのか。
 
 機能全体との関係。
 
-## Dependencies
+## 依存関係
 
 先に完了している必要があるタスク。
 
 ない場合は `なし` とする。
 
-## Scope
+## 対象範囲
 
 このタスクで変更する振る舞い。
 
-## Expected affected areas
+## 想定される影響範囲
 
 変更される可能性が高いmoduleやlayer。
 
 正確に分かっている場合を除き、
 特定ファイルの変更を強制しない。
 
-## Acceptance criteria
+## 受け入れ条件
 
 観測・検証可能な完了条件。
 
-## Required evidence
+## 必要な検証
 
-実装後に必要なEvidence。
+実装後に必要な検証。
 
 例:
 
@@ -195,15 +189,15 @@ RiskはAIによる提案であり、
 - cargo clippy
 - manual UI verification
 
-## Risk
+## リスク
 
 LOW / MEDIUM / HIGH
 
-### Reason
+### 理由
 
 Riskの理由。
 
-## Out of scope
+## 対象外
 
 このタスクでは行わないこと。
 
@@ -211,33 +205,33 @@ Riskの理由。
 
 以下を作成する。
 
-`.ai/tasks/<feature-name>/plan.md`
+`.ai/features/<feature-name>/plan.md`
 
 内容:
 
-# Implementation Plan
+# 実装計画
 
-## Tasks
+## タスク一覧
 
 タスク一覧と概要。
 
-## Dependency graph
+## 依存関係
 
 タスク間の依存関係。
 
-## Recommended execution order
+## 推奨実行順
 
 推奨実行順。
 
-## Parallelizable tasks
+## 並行実行可能なタスク
 
 安全に並行実行できるタスク。
 
-## Major risks
+## 主要リスク
 
 機能全体の主要リスク。
 
-## Feature-level verification
+## 機能全体の検証
 
 機能全体として最終的に何を確認する必要があるか。
 
@@ -248,5 +242,5 @@ Riskの理由。
 - プロダクト上の曖昧さを実装計画の中で勝手に解決しない。
 - 曖昧さが実装に影響する場合は明示する。
 - ファイル単位ではなくbehavior単位で分割する。
-- 各タスクには独立したEvidenceを要求する。
+- 各タスクには独立した検証を要求する。
 - architecture changeは明示的なタスクとして扱う。

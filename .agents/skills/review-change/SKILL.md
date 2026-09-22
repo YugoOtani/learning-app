@@ -1,7 +1,6 @@
-```md
 ---
 name: review-change
-description: 実際のコード変更をChange Unit単位で説明し、リスクと人間レビューの必要性を分析して、review schemaに従った構造化レビューを生成する。
+description: 実際のコード変更を意味のある変更単位で説明し、リスクと人間レビューの必要性を分析して、レビューschemaに従った構造化レビューを生成する。
 ---
 
 # 目的
@@ -10,11 +9,11 @@ description: 実際のコード変更をChange Unit単位で説明し、リス�
 
 このSkillでは主に以下を行う。
 
-1. 変更を意味のあるChange Unitに分ける
-2. 各Change Unitで何を実装したのか説明する
+1. 変更を意味のある変更単位に分ける
+2. 各変更単位で何を実装したのか説明する
 3. 必要に応じて、意味のあるコードのまとまりごとに実装内容を説明する
 4. 仕様・テスト観点・テストコードなど関連資料へのreferenceを整理する
-5. Change Unitごとのリスクを分析する
+5. 変更単位ごとのリスクを分析する
 6. 人間によるレビューが必要か、その場合どこを見るべきかを示す
 7. 全体のレビュー結果と推奨アクションをまとめる
 
@@ -31,16 +30,18 @@ description: 実際のコード変更をChange Unit単位で説明し、リス�
 - `docs/coding-guidelines.md`
 - `docs/test-guidelines.md`
 - 関連する `docs/domain/`
-- Feature specification
-- Task
-- Test plan
-- Implementation rationale
+- 機能仕様
+- タスク
+- テスト計画
+- 実装理由
 - 実際のGit diff
 - 変更後のソースコード
 
 Riskの判断はプロジェクトのrisk policyに従う。
 
 成果物の配置・命名は `.ai/README.md` に従う。
+
+出力形式は `.ai/templates/review.schema.json` に従う。
 
 # 基本方針
 
@@ -90,7 +91,7 @@ Task、仕様、Git diff、関連コードを確認する。
 - 仕様外の変更が含まれていないか
 - 新しい設計判断が含まれていないか
 
-## 2. Change Unitに分割する
+## 2. 変更単位に分割する
 
 変更をファイル単位ではなく、
 人間が意味のある変更として理解できる単位にまとめる。
@@ -103,24 +104,24 @@ Task、仕様、Git diff、関連コードを確認する。
 - Tauri commandの追加
 - 復習一覧UIの追加
 
-1つのChange Unitには、
+1つの変更単位には、
 原則として1つの主要な責務を持たせる。
 
 変更を細かく分けすぎない。
 
 ## 3. 実装内容を説明する
 
-各Change Unitについて以下を作成する。
+各変更単位について以下を作成する。
 
-### summary
+### `summary`
 
 一覧画面で理解できる一行程度の説明。
 
 「何ができるようになったか」を中心に書く。
 
-### description
+### `description`
 
-Change Unit全体について、
+変更単位全体について、
 
 - 何を実装したか
 - どのような構造になっているか
@@ -130,9 +131,9 @@ Change Unit全体について、
 
 評価は含めない。
 
-## 4. 必要に応じてimplementation sectionを作成する
+## 4. 必要に応じて実装セクションを作成する
 
-Change Unitの理解に役立つ場合、
+変更単位の理解に役立つ場合、
 意味のあるコードのまとまりごとに `implementation.sections` を作る。
 
 各sectionには以下を記録する。
@@ -163,9 +164,9 @@ sectionは1行ずつ作らない。
 `description` ではコードの逐語的な言い換えではなく、
 そのまとまりが実装上どの役割を担っているかを説明する。説明にあたっては、`docs/coding-guidelines.md` の「Comments」の方針に従う。
 
-## 5. Referenceを整理する
+## 5. 参照情報を整理する
 
-Change Unitを理解・判断するために有用な資料を `references` に追加する。
+変更単位を理解・判断するために有用な資料を `references` に追加する。
 
 主なreference:
 
@@ -198,7 +199,24 @@ reference自体に本文をコピーしない。
 必要なreferenceだけを追加し、
 関連資料を網羅的に列挙すること自体を目的にしない。
 
-## 6. リスクを分析する
+## 6. 検証結果を整理する
+
+実際に行われた検証を、`review.json` のトップレベル `evidence` に記録する。
+
+各項目には以下を記録する。
+
+- `id`
+- `type`
+- `status`: `pass` / `fail` / `not_run`
+- `summary`
+- 実行した場合は `command`
+- 必要に応じて `details` と `environment`
+
+実行結果を確認できない検証は `pass` にせず、`not_run` とする。
+
+独立した `evidence.json` は作成しない。
+
+## 7. リスクを分析する
 
 各Change Unitについて、
 プロジェクトのrisk policyに従ってRiskを判定する。
@@ -224,9 +242,9 @@ Riskは以下のいずれかとする。
 
 単にコード量が多いという理由だけでRiskを高くしない。
 
-## 7. Review assessmentを作成する
+## 8. レビュー評価を作成する
 
-各Change Unitについて、
+各変更単位について、
 実際のコード・仕様・関連ガイドラインを基に評価する。
 
 `assessment` には主に以下を記述する。
@@ -239,7 +257,7 @@ Riskは以下のいずれかとする。
 テストが通っているという事実だけで、
 設計や仕様の妥当性を保証しない。
 
-## 8. 人間レビューの必要性を判断する
+## 9. 人間レビューの必要性を判断する
 
 人間による確認が必要な場合は、
 
@@ -268,7 +286,7 @@ Riskは以下のいずれかとする。
 Riskが高いからという理由だけで抽象的なレビュー要求を出さず、
 確認すべき論点を明確にする。
 
-## 9. 全体Summaryを作成する
+## 10. 全体概要を作成する
 
 すべてのChange Unitを確認した後、
 
@@ -278,34 +296,34 @@ Riskが高いからという理由だけで抽象的なレビュー要求を出�
 
 を作成する。
 
-### title
+### `title`
 
 今回の変更全体を短く表す。
 
-### review
+### `review`
 
 変更全体について、
 人間が最初に把握すべきレビュー結果を簡潔にまとめる。
 
-### recommended_action
+### `recommended_action`
 
 人間が次に何をすべきかを具体的に示す。
 
 例:
 
-- Change Unit 1のtimezone仕様を確認し、問題なければ承認する
-- migration内容を確認してから承認判断する
-- Change Unit 2の設計を修正して再レビューする
+- 変更単位1のタイムゾーン仕様を確認し、問題なければ承認する
+- マイグレーション内容を確認してから承認判断する
+- 変更単位2の設計を修正して再レビューする
 
 単なる「確認してください」ではなく、
 判断に必要な次の行動を書く。
 
 # 出力
 
-出力は `review.json` とする。
+出力は `.ai/features/<feature>/tasks/<task>/review.json` とする。
 
 `review.json` はプロジェクトで定義された
-`review.schema.json` に完全に従うこと。
+`.ai/templates/review.schema.json` に完全に従うこと。
 
 自由形式のreview Markdownを主要成果物として生成しない。
 
@@ -331,12 +349,12 @@ Schemaに存在しない補足情報を追加したい場合は、
 
 以下を満たした場合に完了とする。
 
-- すべての主要な変更がChange Unitとして説明されている
-- 各Change Unitに実装内容の説明がある
-- 必要なChange Unitにはコード単位のsectionがある
+- すべての主要な変更が変更単位として説明されている
+- 各変更単位に実装内容の説明がある
+- 必要な変更単位にはコード単位のセクションがある
 - 必要な仕様・テスト資料へのreferenceがある
-- 各Change UnitのRiskとassessmentが記録されている
+- 実行済み・未実行を区別した検証結果が記録されている
+- 各変更単位のリスクと評価が記録されている
 - 人間レビューが必要な場合、その焦点が具体的に示されている
 - summaryに全体レビューと推奨アクションがある
-- 出力が `review.schema.json` に適合している
-```
+- 出力が `.ai/templates/review.schema.json` に適合している

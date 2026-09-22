@@ -15,14 +15,14 @@ description: 承認済みの実装タスクを、既存アーキテクチャを�
 
 以下を確認する。
 
-- Goal
-- Context
-- Dependencies
-- Scope
-- Acceptance criteria
-- Required evidence
-- Risk
-- Out of scope
+- 目標
+- 背景
+- 依存関係
+- 対象範囲
+- 受け入れ条件
+- 必要な検証
+- リスク
+- 対象外
 
 依存タスクが未完了の場合は、
 その事実を明示する。
@@ -65,29 +65,33 @@ description: 承認済みの実装タスクを、既存アーキテクチャを�
 - 不要なrefactoringを避ける
 
 ## 5. 実装する
+
 - 実装時は`docs/coding-guidelines.md`のコーディングガイドラインを遵守する。
-- Acceptance criteriaを満たす実装を行う。
+- テスト実装時は `docs/test-guidelines.md` を遵守する。
+- 受け入れ条件を満たす実装を行う。
+- 振る舞いを変更する場合は、実装担当が同じタスク内で適切なテストを追加または更新する。
+- `test-plan.md` がある場合は、その検証観点をテストへ反映する。
 - Tauri commandへdomain logicを書かない。
 - UIからpersistenceへ直接アクセスしない。
 - 既存architecture boundaryを守る。
 - 完了チェックリスト
-  * [ ] Acceptance Criteriaを満たした
-  * [ ] Scope外の変更がないことを確認した
+  * [ ] 受け入れ条件を満たした
+  * [ ] 対象外の変更がないことを確認した
   * [ ] レビュアー向けに適切にコメントを残した
   * [ ] 適切な粒度で関数・クラスへの切り出し、抽象化を行っている
   * [ ] 既存の抽象化・設計を尊重している
-  * [ ] `scripts/verify-change.ps`を実行してフォーマット、lint、テストが通ったことを確認した
-- テストについてはほかのエージェントが実装するため、実装しない
+  * [ ] 振る舞いの変更に対応するテストを追加または更新した
+  * [ ] `scripts/verify-change.ps1`を実行してフォーマット、lint、テストが通ったことを確認した
 
 ## 6. 実装結果を整理する
 
-最後に以下を`features/<feature>/tasks/<task>/implementation.md`にまとめる。
+最後に以下を `.ai/features/<feature>/tasks/<task>/implementation.md` にまとめる。
 
 - 変更した内容
 - 変更理由
 - 主な変更箇所
 - 追加・変更したテスト
-- Acceptance criteriaへの対応
+- 受け入れ条件への対応
 - 未解決リスク
 - 未検証事項
 

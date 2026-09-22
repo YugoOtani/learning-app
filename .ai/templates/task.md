@@ -1,17 +1,21 @@
-# Task
+# タスク
 
-## Goal
+## 目標
 
-## Context
+## 背景
 
-## Dependencies
+## 依存関係
 
-## Scope
+## 対象範囲
 
-## Acceptance criteria
+## 想定される影響範囲
 
-## Required evidence
+## 受け入れ条件
 
-## Risk
+## 必要な検証
 
-## Out of scope
+## リスク
+
+### 理由
+
+## 対象外

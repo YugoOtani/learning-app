@@ -1,0 +1,228 @@
+{
+  "version": "1.0",
+  "summary": {
+    "title": "AI駆動開発ガイダンスの整合化",
+    "review": "成果物の配置、レビュー形式、検証結果の記録先、テスト責務、検証コマンドが一貫するように更新されている。プロダクトの実行時動作への変更はない。",
+    "recommended_action": "変更された開発プロセスを確認し、今後の機能開発でこの構成を使用する。"
+  },
+  "evidence": [
+    {
+      "id": "skill-validation",
+      "type": "other",
+      "status": "pass",
+      "command": "python quick_validate.py <skill-directory>",
+      "summary": "6個すべてのプロジェクト固有Skillが公式validatorで有効と判定された。",
+      "environment": "Windows、Python 3.13、UTF-8モード"
+    },
+    {
+      "id": "review-schema-validation",
+      "type": "other",
+      "status": "pass",
+      "command": "python -m jsonschema validation",
+      "summary": "review schema自体と、このreview.jsonのDraft 2020-12適合性を確認した。"
+    },
+    {
+      "id": "frontend-lint",
+      "type": "lint",
+      "status": "pass",
+      "command": "pnpm run lint",
+      "summary": "ESLintがエラーなしで完了した。"
+    },
+    {
+      "id": "frontend-typecheck",
+      "type": "typecheck",
+      "status": "pass",
+      "command": "pnpm run typecheck",
+      "summary": "TypeScriptの型チェックがエラーなしで完了した。"
+    },
+    {
+      "id": "frontend-test",
+      "type": "unit_test",
+      "status": "pass",
+      "command": "pnpm run test",
+      "summary": "Vitestが正常終了した。",
+      "details": "テスト基盤の導入確認として実行した。現時点のテストファイル数は0件。"
+    },
+    {
+      "id": "rust-format",
+      "type": "format",
+      "status": "pass",
+      "command": "cargo fmt --check --manifest-path src-tauri/Cargo.toml",
+      "summary": "Rustコードのフォーマット検証が完了した。"
+    },
+    {
+      "id": "rust-clippy",
+      "type": "lint",
+      "status": "pass",
+      "command": "cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings",
+      "summary": "Clippyがwarningをエラー扱いする設定で完了した。"
+    },
+    {
+      "id": "rust-test",
+      "type": "unit_test",
+      "status": "pass",
+      "command": "cargo test --manifest-path src-tauri/Cargo.toml",
+      "summary": "Rustテストが正常終了した。",
+      "details": "lib、main、doc-testはいずれも0件で、失敗は0件。"
+    }
+  ],
+  "change_units": [
+    {
+      "id": "artifact-layout",
+      "title": "AI成果物の配置統一",
+      "implementation": {
+        "summary": "仕様・計画・タスク・レビューの配置を機能単位の構成へ統一した。",
+        "description": "`.ai/features/<feature>/` を唯一の正規配置とし、各Skillの出力先とテンプレートを同じ構成へ揃えた。人間向けの見出しと説明は日本語へ統一した。",
+        "sections": [
+          {
+            "title": "正規ディレクトリ構成",
+            "path": ".ai/README.md",
+            "description": "機能仕様、実装計画、タスク成果物の配置と命名を定義する。"
+          },
+          {
+            "title": "Skillの出力先",
+            "path": ".agents/skills",
+            "description": "仕様策定、タスク分割、テスト設計、実装の各Skillが正規配置を使用する。"
+          }
+        ]
+      },
+      "review": {
+        "risk": "low",
+        "assessment": "旧配置への参照は否定文を除いて残っておらず、テンプレートとSkillの出力先は整合している。",
+        "human_review_required": false
+      },
+      "references": [
+        {
+          "type": "spec",
+          "path": ".ai/features/ai-development-workflow/spec.md",
+          "description": "AI駆動開発ワークフローの仕様"
+        },
+        {
+          "type": "test_plan",
+          "path": ".ai/features/ai-development-workflow/tasks/001-align-project-guidance/test-plan.md",
+          "description": "配置・Skill・schema・統合検証のテスト計画"
+        },
+        {
+          "type": "implementation",
+          "path": ".ai/features/ai-development-workflow/tasks/001-align-project-guidance/implementation.md",
+          "description": "今回の実装記録"
+        },
+        {
+          "type": "other",
+          "path": ".ai/README.md",
+          "description": "AI成果物の正規配置"
+        },
+        {
+          "type": "other",
+          "path": ".ai/templates/task.md",
+          "description": "日本語化されたタスクテンプレート"
+        }
+      ]
+    },
+    {
+      "id": "review-evidence",
+      "title": "レビューと検証結果の統合",
+      "implementation": {
+        "summary": "レビュー成果物をschema準拠のJSONへ統一し、検証結果を同じ成果物へ統合した。",
+        "description": "独立したEvidence policyとMarkdownレビューを廃止し、`review.json`のトップレベル`evidence`へ実行結果を記録する構造にした。review-change Skillのfrontmatterも有効化した。",
+        "sections": [
+          {
+            "title": "レビューschema",
+            "path": ".ai/templates/review.schema.json",
+            "description": "検証結果の型と、人間レビュー必須時の確認点を定義する。"
+          },
+          {
+            "title": "レビュー手順",
+            "path": ".agents/skills/review-change/SKILL.md",
+            "description": "実行済み・未実行を区別してreview.jsonへ記録する手順を定義する。"
+          }
+        ]
+      },
+      "review": {
+        "risk": "low",
+        "assessment": "schemaは有効なJSONで、Evidenceの必須化と`pass`、`fail`、`not_run`の区別が反映されている。Skillは公式validatorを通過している。",
+        "human_review_required": false
+      },
+      "references": [
+        {
+          "type": "other",
+          "path": ".ai/templates/review.schema.json",
+          "description": "review.jsonのJSON Schema"
+        },
+        {
+          "type": "other",
+          "path": ".agents/skills/review-change/SKILL.md",
+          "description": "構造化レビューの作成手順"
+        }
+      ]
+    },
+    {
+      "id": "verification-tooling",
+      "title": "検証基盤の整備",
+      "implementation": {
+        "summary": "フロントエンド検証コマンドと統合検証スクリプトを実行可能にした。",
+        "description": "ESLintとVitestを導入し、lint、型チェック、テストのpackage scriptsを追加した。PowerShellスクリプトを`.ps1`へ改名し、pnpmベースでフロントエンドとRustの検証を順番に実行する。",
+        "sections": [
+          {
+            "title": "フロントエンド検証コマンド",
+            "path": "package.json",
+            "description": "lint、typecheck、testコマンドと必要な開発依存を定義する。"
+          },
+          {
+            "title": "統合検証",
+            "path": "scripts/verify-change.ps1",
+            "description": "フロントエンドとRustの標準検証を一括実行する。"
+          }
+        ]
+      },
+      "review": {
+        "risk": "low",
+        "assessment": "追加した検証コマンドは統合スクリプトからすべて実行され、正常終了した。アプリケーションの依存や実行時コードは変更していない。",
+        "human_review_required": false
+      },
+      "references": [
+        {
+          "type": "implementation",
+          "path": "package.json",
+          "description": "検証コマンドと開発依存"
+        },
+        {
+          "type": "implementation",
+          "path": "eslint.config.js",
+          "description": "ReactとTypeScript向けのESLint設定"
+        },
+        {
+          "type": "implementation",
+          "path": "scripts/verify-change.ps1",
+          "description": "統合検証スクリプト"
+        }
+      ]
+    },
+    {
+      "id": "test-ownership",
+      "title": "テスト実装責務の明確化",
+      "implementation": {
+        "summary": "振る舞い変更に対応するテストを実装担当の責務として定義した。",
+        "description": "AGENTS.mdとimplement-task Skillの責務を揃え、実装担当が同一タスク内でテストを追加・更新し、統合検証まで行うようにした。",
+        "sections": []
+      },
+      "review": {
+        "risk": "low",
+        "assessment": "テストを別エージェントへ委ねる旧記述は削除され、プロジェクト方針と実装Skillの間に責務上の矛盾はない。",
+        "human_review_required": false
+      },
+      "references": [
+        {
+          "type": "other",
+          "path": "AGENTS.md",
+          "description": "プロジェクト全体のテスト責務"
+        },
+        {
+          "type": "other",
+          "path": ".agents/skills/implement-task/SKILL.md",
+          "description": "実装タスク内のテスト追加と検証手順"
+        }
+      ]
+    }
+  ]
+}

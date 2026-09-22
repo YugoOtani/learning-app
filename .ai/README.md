@@ -1,35 +1,39 @@
-# .ai directory
+# `.ai` ディレクトリ
 
 ## ディレクトリ構造
+
+```text
 .ai/
 ├─ features/
-│   └─ <feature>/
-│       ├─ spec.md
-│       ├─ plan.md
-│       └─ tasks/
-│           └─ 001-<task>/
-│               ├─ task.md
-│               ├─ test-plan.md
-│               ├─ implementation.md
-│               ├─ evidence.json
-│               └─ review.md
-│
+│  └─ <feature>/
+│     ├─ spec.md
+│     ├─ plan.md
+│     └─ tasks/
+│        └─ 001-<task>/
+│           ├─ task.md
+│           ├─ test-plan.md
+│           ├─ implementation.md
+│           └─ review.json
 ├─ policies/
-│   ├─ risk.md
-│   └─ evidence.md
-│
+│  └─ risk.md
 └─ templates/
+   ├─ task.md
+   └─ review.schema.json
+```
 
 ## 各ディレクトリの役割
-- 機能単位の成果物は `.ai`/features/<feature>/` に置く。
+
+- 機能単位の成果物は `.ai/features/<feature>/` に置く。
 - 機能仕様は `spec.md`、実装計画は `plan.md` とする。
 - 各実装タスクは `.ai/features/<feature>/tasks/<task>/` にまとめる。
-- タスク配下には `task.md`、`implementation.md`、`evidence.json`、`review.md` を置く。各生成物の意味については各タスクを参照すること。
-- 複数タスクで共通するルールやテンプレートは重複を避けるため `.ai/policies/` または `.ai/templates/` に置く。`
+- タスク配下には `task.md`、`test-plan.md`、`implementation.md`、`review.json` を置く。
+- 検証結果は独立したファイルにせず、`review.json` の `evidence` に記録する。
+- `review.json` は `.ai/templates/review.schema.json` に適合させる。
+- 複数タスクで共通するルールやテンプレートは、重複を避けるため `.ai/policies/` または `.ai/templates/` に置く。
 
-## Featureフォルダの命名規則
+## 機能フォルダの命名規則
 
-Featureディレクトリ名は以下の規則に従う。
+機能ディレクトリ名は以下の規則に従う。
 
 - kebab-caseを使用する
 - 英語を使用する
@@ -38,15 +42,15 @@ Featureディレクトリ名は以下の規則に従う。
 - 原則として名詞または短い名詞句にする
 - 日付や連番は含めない
 
-Examples:
+例:
 
-Good:
+推奨:
 - `review-scheduling`
 - `learning-session`
 - `daily-plan`
 - `resource-library`
 
-Avoid:
+非推奨:
 - `feature-001`
 - `add-review-button`
 - `sqlite-review-table`

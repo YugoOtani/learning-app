@@ -1,11 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "review.schema.json",
-  "title": "Change Review",
+  "title": "変更レビュー",
   "type": "object",
   "required": [
     "version",
     "summary",
+    "evidence",
     "change_units"
   ],
   "properties": {
@@ -34,6 +35,13 @@
       "additionalProperties": false
     },
 
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/evidence"
+      }
+    },
+
     "change_units": {
       "type": "array",
       "items": {
@@ -43,6 +51,56 @@
   },
 
   "$defs": {
+    "evidence": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "status",
+        "summary"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "format",
+            "lint",
+            "typecheck",
+            "unit_test",
+            "integration_test",
+            "e2e",
+            "build",
+            "manual",
+            "other"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pass",
+            "fail",
+            "not_run"
+          ]
+        },
+        "command": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "details": {
+          "type": "string"
+        },
+        "environment": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+
     "change_unit": {
       "type": "object",
       "required": [
@@ -168,9 +226,29 @@
         },
 
         "human_review_focus": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         }
       },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "human_review_required": {
+                "const": true
+              }
+            },
+            "required": [
+              "human_review_required"
+            ]
+          },
+          "then": {
+            "required": [
+              "human_review_focus"
+            ]
+          }
+        }
+      ],
       "additionalProperties": false
     },
 

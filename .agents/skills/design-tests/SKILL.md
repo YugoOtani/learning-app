@@ -12,10 +12,10 @@ description: 仕様とタスクから、実装に依存しないテスト観点�
 
 # 入力
 
-- Feature specification
-- Task
-- Acceptance criteria
-- 関連するdomain guideline
+- 機能仕様
+- タスク
+- 受け入れ条件
+- 関連するドメインガイドライン
 
 原則として実装コードの詳細をテスト設計の根拠にしない。
 
@@ -29,11 +29,11 @@ description: 仕様とタスクから、実装に依存しないテスト観点�
 - 状態遷移
 - 不変条件
 - 永続化
-- 入出力contract
-- concurrency
-- timezone / 日付
-- recovery
-- regression
+- 入出力契約
+- 並行処理
+- タイムゾーン・日付
+- 復旧
+- リグレッション
 
 すべてのカテゴリを機械的に埋める必要はない。
 
@@ -43,16 +43,16 @@ description: 仕様とタスクから、実装に依存しないテスト観点�
 - なぜ必要か
 - 期待する結果
 - 適切なテストレベル
-  - unit
-  - integration
+  - 単体
+  - 結合
   - E2E
-  - manual
+  - 手動
 
-出力はタスク配下の `test-plan.md` とする。
+出力は `.ai/features/<feature-name>/tasks/<task-name>/test-plan.md` とする。
 
 # ルール
 
 - 現在の実装を正しい前提としてテストを設計しない。
-- privateな実装詳細ではなくobservable behaviorを優先する。
-- Acceptance Criteriaの単純な言い換えだけで終わらせない。
+- 非公開の実装詳細ではなく、外部から観測可能な振る舞いを優先する。
+- 受け入れ条件の単純な言い換えだけで終わらせない。
 - 不要なテストケースを網羅性のためだけに増やさない。

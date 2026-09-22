@@ -1,18 +1,18 @@
-# Risk classification
+# リスク分類
 
 ## HIGH
-- database migration
-- authentication / authorization
-- data deletion
-- architecture boundary change
+- データベースマイグレーション
+- 認証・認可
+- データ削除
+- アーキテクチャ境界の変更
 
 ## MEDIUM
-- domain logic
-- repository implementation
+- ドメインロジック
+- Repository実装
 - Tauri IPC
-- persistence
+- 永続化
 
 ## LOW
-- isolated UI change
-- mechanical rename
-- generated code
+- 独立したUI変更
+- 機械的な名前変更
+- 生成コード
