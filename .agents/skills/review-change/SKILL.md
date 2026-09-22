@@ -1,219 +1,342 @@
 ```md
 ---
 name: review-change
-description: 実際の変更内容とEvidenceを独立して確認し、人間がレビューすべきリスク・不整合・未検証事項を整理する。
+description: 実際のコード変更をChange Unit単位で説明し、リスクと人間レビューの必要性を分析して、review schemaに従った構造化レビューを生成する。
 ---
 
 # 目的
 
-実装Agentの自己評価に依存せず、実際の変更とEvidenceから変更内容を独立してレビューする。
+実際のコード変更を、人間が短時間で理解・判断できる形に整理する。
 
-このSkillの目的は最終承認ではなく、
-人間が効率よく判断できるレビュー材料を作ることである。
+このSkillでは主に以下を行う。
+
+1. 変更を意味のあるChange Unitに分ける
+2. 各Change Unitで何を実装したのか説明する
+3. 必要に応じて、意味のあるコードのまとまりごとに実装内容を説明する
+4. 仕様・テスト観点・テストコードなど関連資料へのreferenceを整理する
+5. Change Unitごとのリスクを分析する
+6. 人間によるレビューが必要か、その場合どこを見るべきかを示す
+7. 全体のレビュー結果と推奨アクションをまとめる
+
+最終的な承認・却下は行わない。
 
 # 参照
 
-レビュー前に必要に応じて以下を確認する。
+レビュー開始前に必要に応じて以下を確認する。
 
 - `AGENTS.md`
 - `.ai/README.md`
-- `.ai/policies/evidence.md`
-- `.ai/policies/risk.md`
+- `.ai/policies/` の関連規則
 - `docs/architecture.md`
 - `docs/coding-guidelines.md`
 - `docs/test-guidelines.md`
 - 関連する `docs/domain/`
 - Feature specification
 - Task
+- Test plan
 - Implementation rationale
-- Verification evidence
+- 実際のGit diff
+- 変更後のソースコード
+
+Riskの判断はプロジェクトのrisk policyに従う。
 
 成果物の配置・命名は `.ai/README.md` に従う。
 
-Risk判定は `.ai/policies/risk.md` に従う。
+# 基本方針
 
-Evidenceの扱いは `.ai/policies/evidence.md` に従う。
+## 実装の説明とレビュー判断を分離する
 
-# 入力
+`implementation` には、
 
-最低限、以下を確認する。
+- 実際に何を変更したか
+- そのコードがどの役割を持つか
 
-- Task
-- Git diff
-- Verification evidence
+を記述する。
 
-存在する場合は以下も確認する。
+ここでは変更の良し悪しを評価しない。
 
-- Feature specification
-- Test plan
-- Implementation rationale
-- 関連ドキュメント
+`review` には、
 
-# レビュー手順
+- 変更が仕様や既存設計と整合しているか
+- どの程度のリスクがあるか
+- 人間レビューが必要か
+- 人間が何を確認すべきか
 
-## 1. 変更を独立して把握する
+を記述する。
 
-まず以下を基に、実際に何が変更されたかを確認する。
+実装説明とレビュー判断を混同しない。
 
-- Task
-- Feature specification
-- Git diff
-- Evidence
-- 関連するarchitecture / domain rule
+## 実際のコードを基準にする
 
-実装Agentの説明を、変更内容を判断するための根拠にはしない。
+Implementation rationaleだけを根拠として変更内容を説明しない。
 
-変更をファイル単位ではなく、意味のあるChange Unitにまとめる。
+必ず実際のdiffと変更後コードを確認して、
+現在の実装が何をしているかを説明する。
+
+実装者の意図と実際のコードが異なる場合は、
+実際のコードを優先する。
+
+# 手順
+
+## 1. 変更全体を把握する
+
+Task、仕様、Git diff、関連コードを確認する。
+
+以下を整理する。
+
+- 今回達成しようとしていること
+- 実際に変更された振る舞い
+- 変更されたdomain / layer / component
+- 仕様外の変更が含まれていないか
+- 新しい設計判断が含まれていないか
+
+## 2. Change Unitに分割する
+
+変更をファイル単位ではなく、
+人間が意味のある変更として理解できる単位にまとめる。
 
 例:
 
-- 復習対象判定ロジック
+- 復習対象判定ロジックの追加
+- LocalDate value objectの追加
 - 復習状態の永続化
-- Tauri IPCの追加
-- UI表示
+- Tauri commandの追加
+- 復習一覧UIの追加
 
-## 2. Task・仕様との整合性を確認する
+1つのChange Unitには、
+原則として1つの主要な責務を持たせる。
 
-各Change Unitについて確認する。
+変更を細かく分けすぎない。
 
-- Goal達成に必要な変更か
-- Acceptance Criteriaと整合しているか
-- Scope外の変更が含まれていないか
-- 不要なrefactoringや設計変更が混入していないか
-- architecture / domain ruleに反していないか
+## 3. 実装内容を説明する
 
-## 3. Evidenceを対応付ける
+各Change Unitについて以下を作成する。
 
-各Change Unitについて、実際に存在するEvidenceを対応付ける。
+### summary
+
+一覧画面で理解できる一行程度の説明。
+
+「何ができるようになったか」を中心に書く。
+
+### description
+
+Change Unit全体について、
+
+- 何を実装したか
+- どのような構造になっているか
+- 重要な実装上の特徴
+
+を簡潔に説明する。
+
+評価は含めない。
+
+## 4. 必要に応じてimplementation sectionを作成する
+
+Change Unitの理解に役立つ場合、
+意味のあるコードのまとまりごとに `implementation.sections` を作る。
+
+各sectionには以下を記録する。
+
+- title
+- path
+- symbol（特定できる場合）
+- start_line / end_line（特定できる場合）
+- description
+
+sectionは1行ずつ作らない。
+
+人間が意味のある処理として理解できるまとまり単位にする。
+
+悪い例:
+
+- 変数を宣言する
+- if文で比較する
+- boolを返す
+
+良い例:
+
+- 復習対象の判定
+- 基準日の外部入力
+- 完了済み項目の除外
+- 保存前のvalidation
+
+`description` ではコードの逐語的な言い換えではなく、
+そのまとまりが実装上どの役割を担っているかを説明する。説明にあたっては、`docs/coding-guidelines.md` の「Comments」の方針に従う。
+
+## 5. Referenceを整理する
+
+Change Unitを理解・判断するために有用な資料を `references` に追加する。
+
+主なreference:
+
+- `spec`
+- `test_plan`
+- `test`
+- `implementation`
+- `other`
+
+各referenceには、
+
+- type
+- path
+- description
+
+を記録する。
+
+必要であれば以下も指定する。
+
+- section
+- symbol
+- start_line
+- end_line
+
+reference自体に本文をコピーしない。
+
+実際の内容のインライン表示は、
+レポート生成ツールが参照先ファイルから取得する。
+
+必要なreferenceだけを追加し、
+関連資料を網羅的に列挙すること自体を目的にしない。
+
+## 6. リスクを分析する
+
+各Change Unitについて、
+プロジェクトのrisk policyに従ってRiskを判定する。
+
+以下を考慮する。
+
+- domain behaviorへの影響
+- 永続データへの影響
+- architecture boundaryへの影響
+- security / permissionへの影響
+- destructive operationの有無
+- error handlingへの影響
+- concurrency / state consistencyへの影響
+- 変更範囲
+- 既存機能への波及可能性
+- 仕様上の不確実性
+
+Riskは以下のいずれかとする。
+
+- `low`
+- `medium`
+- `high`
+
+単にコード量が多いという理由だけでRiskを高くしない。
+
+## 7. Review assessmentを作成する
+
+各Change Unitについて、
+実際のコード・仕様・関連ガイドラインを基に評価する。
+
+`assessment` には主に以下を記述する。
+
+- 仕様と整合しているか
+- 既存architecture / domain ruleと整合しているか
+- 不要な変更が含まれていないか
+- 実装上気になる点があるか
+
+テストが通っているという事実だけで、
+設計や仕様の妥当性を保証しない。
+
+## 8. 人間レビューの必要性を判断する
+
+人間による確認が必要な場合は、
+
+`human_review_required: true`
+
+とする。
+
+その場合は `human_review_focus` に、
+
+「人間が何を判断・確認すべきか」
+
+を具体的に記述する。
+
+良い例:
+
+- 「today」がユーザーのlocal dateを意味する仕様でよいか確認する
+- 新しいRepository interfaceが既存の責務分割と整合するか確認する
+- migrationによる既存データ変換が許容可能か確認する
+
+悪い例:
+
+- コードを確認する
+- 問題がないか確認する
+- 念のためレビューする
+
+Riskが高いからという理由だけで抽象的なレビュー要求を出さず、
+確認すべき論点を明確にする。
+
+## 9. 全体Summaryを作成する
+
+すべてのChange Unitを確認した後、
+
+- `summary.title`
+- `summary.review`
+- `summary.recommended_action`
+
+を作成する。
+
+### title
+
+今回の変更全体を短く表す。
+
+### review
+
+変更全体について、
+人間が最初に把握すべきレビュー結果を簡潔にまとめる。
+
+### recommended_action
+
+人間が次に何をすべきかを具体的に示す。
 
 例:
 
-- unit test
-- integration test
-- typecheck
-- lint
-- cargo test
-- migration test
-- manual verification
+- Change Unit 1のtimezone仕様を確認し、問題なければ承認する
+- migration内容を確認してから承認判断する
+- Change Unit 2の設計を修正して再レビューする
 
-Evidenceが存在しない場合は推測で補わず、未検証として扱う。
-
-## 4. 実装理由と比較する
-
-独立レビューが完了した後に `implementation.md` を確認する。
-
-実装Agentが記録した変更理由・設計判断と、
-実際のdiffおよび仕様を比較する。
-
-以下のいずれかとして整理する。
-
-- `CONSISTENT`
-- `PARTIALLY_CONSISTENT`
-- `INCONSISTENT`
-- `UNKNOWN`
-
-不一致がある場合は、人間が確認すべき事項として明示する。
-
-## 5. Riskを評価する
-
-`.ai/policies/risk.md` に従って、
-Change UnitごとにRiskを評価する。
-
-Riskには根拠を付ける。
-
-AIによるRisk評価は参考情報であり、
-最終判断ではない。
-
-## 6. 未検証事項と残る不確実性を整理する
-
-以下を区別する。
-
-### Unverified
-
-必要な検証が実行されていないもの。
-
-### Remaining uncertainty
-
-検証は存在するが、それだけでは判断できないもの。
-
-例:
-
-- timezoneの仕様自体が未確定
-- migrationの実データ互換性
-- concurrency時の挙動
-- UX上の妥当性
-
-## 7. 人間のレビュー対象を絞る
-
-以下を中心に、人間が見るべき箇所を提示する。
-
-- HIGH riskの変更
-- architecture / domain boundaryの変更
-- Evidenceが弱い変更
-- implementation rationaleとdiffの不一致
-- Scope外の変更
-- 複雑なdomain logic
-- migration / security / destructive operation
-- 未解決の仕様判断
-
-単純な機械的変更まで詳細レビュー対象として大量に列挙しない。
+単なる「確認してください」ではなく、
+判断に必要な次の行動を書く。
 
 # 出力
 
-タスク配下の `review.md` を作成する。
+出力は `review.json` とする。
 
-形式は以下を基本とする。
+`review.json` はプロジェクトで定義された
+`review.schema.json` に完全に従うこと。
 
-## Summary
+自由形式のreview Markdownを主要成果物として生成しない。
 
-変更全体の簡潔な概要。
+Schema validationに失敗するフィールドを追加しない。
 
-## Findings
+Schemaに存在しない補足情報を追加したい場合は、
+勝手にフィールドを増やさず、
+必要性を人間へ報告する。
 
-重要度の高い順に記載する。
+# 出力上の注意
 
-各Findingには可能な範囲で以下を含める。
+- `implementation` は実装内容の説明に限定する。
+- `review` は判断・評価に限定する。
+- `references` は参照先と簡易説明だけを持つ。
+- 実際のsource codeや仕様本文をJSONへコピーしない。
+- コード表示に必要な位置情報はpath / symbol / line rangeで示す。
+- line rangeは確認できた場合のみ記録する。
+- 存在しないsymbolやline rangeを推測しない。
+- Git diffに存在しない変更を説明しない。
+- 問題がない場合に、無理に問題点やhuman review requirementを作らない。
 
-- 対象Change Unit
-- Risk
-- 問題または確認事項
-- 根拠
-- Evidence
-- 人間が確認すべき点
+# 完了条件
 
-問題がない変更について、無理にFindingを作らない。
+以下を満たした場合に完了とする。
 
-## Change Units
-
-各Change Unitについて簡潔に整理する。
-
-### <Change Unit>
-
-- Actual change:
-- Task / spec alignment:
-- Evidence:
-- Risk:
-- Rationale consistency:
-
-## Unverified Areas
-
-実行されていない、または不足している検証。
-
-## Remaining Uncertainty
-
-Evidenceだけでは解消できない不確実性。
-
-## Suggested Human Review
-
-人間がコードを確認する場合の推奨箇所と順序。
-
-# ルール
-
-- 実装Agentの説明を事実として扱わない。
-- Git diffに存在しない変更を推測しない。
-- 実行されていない検証をEvidenceとして扱わない。
-- EvidenceとAIによる解釈を混同しない。
-- テスト成功だけを理由に設計の妥当性を保証しない。
-- 問題が見つからない場合、無理に問題を作らない。
-- 最終的な承認・却下判断は人間に委ねる。
+- すべての主要な変更がChange Unitとして説明されている
+- 各Change Unitに実装内容の説明がある
+- 必要なChange Unitにはコード単位のsectionがある
+- 必要な仕様・テスト資料へのreferenceがある
+- 各Change UnitのRiskとassessmentが記録されている
+- 人間レビューが必要な場合、その焦点が具体的に示されている
+- summaryに全体レビューと推奨アクションがある
+- 出力が `review.schema.json` に適合している
 ```
